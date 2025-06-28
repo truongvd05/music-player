@@ -66,7 +66,6 @@ const musicPlayer = {
         this.handleInput();
         this.handleTime();
         this.handleLoop();
-        this.endSong();
         this.handleVolume();
         this.handleDisableRandom();
 
@@ -90,7 +89,7 @@ const musicPlayer = {
                 console.log(songRandom);
             } while (songRandom === this.lastRandom);
             this.currenindex = songRandom;
-            this.audio.src = this.currenindex.filePath;
+            this.songList[this.currenindex].filePath;
             this.loadCurrenSong();
             if (this.isplay) {
                 this.audio.play();
@@ -123,7 +122,7 @@ const musicPlayer = {
     // volumn
     handleVolume() {
         this.volume.oninput = () => {
-            valueVolume = this.volume.value;
+            this.valueVolume = this.volume.value;
             this.audio.volume = valueVolume;
             this.lastVolume = this.volume.value;
 
@@ -176,6 +175,8 @@ const musicPlayer = {
             }
         };
     },
+    // end thì next song
+
     // total song runing
     handleGetStart() {
         const munius = Math.floor(this.audio.currentTime / 60);
@@ -249,9 +250,11 @@ const musicPlayer = {
 
     // end Song
     endSong() {
-        if (this.audio.ended) {
-            this.nextSong();
-        }
+        this.audio.onended = () => {
+            if (!this.isloop) {
+                this.nextSong();
+            }
+        };
     },
     // return song
     prevSong() {
