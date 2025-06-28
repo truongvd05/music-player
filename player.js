@@ -15,7 +15,7 @@ const musicPlayer = {
     loop: $(".btn-loop"),
     icon_volume: $(".js-volume-icon"),
     volume: $(".js-volume"),
-    random: $(".fa-random"),
+    random: $(".btn-shuffle"),
 
     isplay: false,
     currenindex: 0,
@@ -23,6 +23,7 @@ const musicPlayer = {
     isvolume: true,
     valueVolume: 0,
     lastVolume: 0,
+    lastRandom: 0,
     // Danh sách bài hát
     songList: [
         {
@@ -67,14 +68,42 @@ const musicPlayer = {
         this.handleLoop();
         this.endSong();
         this.handleVolume();
+        this.handleDisableRandom();
 
         // console.log(this.random);
 
         // dom evnet
+        this.random.onclick = this.handleRandom.bind(this);
         this.icon_volume.onclick = this.handleIconVolume.bind(this);
         this.play.onclick = this.handle_play.bind(this);
         this.next.onclick = this.nextSong.bind(this);
         this.prev.onclick = this.prevSong.bind(this);
+    },
+    // random song
+    handleRandom() {
+        this.lastRandom = this.currenindex;
+
+        let songRandom;
+        if (this.songList.length !== 1) {
+            do {
+                songRandom = Math.floor(Math.random() * this.songList.length);
+                console.log(songRandom);
+            } while (songRandom === this.lastRandom);
+            this.currenindex = songRandom;
+            this.audio.src = this.currenindex.filePath;
+            this.loadCurrenSong();
+            if (this.isplay) {
+                this.audio.play();
+            }
+        }
+    },
+    // disable random
+    handleDisableRandom() {
+        if (this.songList.length <= 1) {
+            this.random.classList.add("disable");
+        } else {
+            this.random.classList.remove("disable");
+        }
     },
     // loop song
     handleLoop() {
@@ -240,19 +269,19 @@ const musicPlayer = {
     },
     // handle play click to list
     handleClickSong() {
-        this.isplay = true;
-
         const songs = $$(".song");
-        songs.forEach((song, index) => {
-            song.onclick = (e) => {
-                this.currenindex = index;
-                let currentSong = this.getCurrenSong();
-                this.activeSong();
-                if (this.isplay) {
+        this.audio.addEventListener("loadedmetadata", () => {
+            songs.forEach((song, index) => {
+                song.onclick = (e) => {
+                    this.currenindex = index;
+                    let currentSong = this.getCurrenSong();
+                    this.activeSong();
                     this.audio.src = currentSong.filePath;
-                    this.audio.play();
-                }
-            };
+                    if (this.isplay) {
+                        this.audio.play();
+                    }
+                };
+            });
         });
     },
 
