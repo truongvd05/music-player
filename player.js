@@ -147,7 +147,6 @@ const musicPlayer = {
         if (this.songList.length !== 1) {
             do {
                 songRandom = Math.floor(Math.random() * this.songList.length);
-                console.log(songRandom);
             } while (songRandom === this.lastRandom);
             this.currenindex = songRandom;
             this.songList[this.currenindex].filePath;
