@@ -31,7 +31,7 @@ const musicPlayer = {
     isloop: false,
     isvolume: true,
     valueVolume: 0,
-    lastVolume: 0,
+    lastVolume: 0.4,
     lastRandom: 0,
     songIndex: 0,
     songId: 0,

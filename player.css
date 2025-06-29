@@ -158,9 +158,10 @@ button {
 }
 
 .heart {
+    padding: 5px;
     position: absolute;
     top: 7px;
-    right: 7px;
+    right: 2px;
 }
 
 .heart-active {
@@ -249,7 +250,15 @@ button {
 .volume-inner {
     position: relative;
 }
+.fa-volume-up {
 
+}
+
+.volume-icom {
+    top: 50%;
+    transform: translateY(-50%);
+    padding: 5px;
+}
 .fas {
     cursor: pointer;
     position: absolute;
