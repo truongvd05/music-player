@@ -137,7 +137,7 @@ header h2 {
 
 /* PLAYLIST */
 .playlist {
-    margin-top: 408px;
+    margin-top: 450px;
     padding: 12px;
 }
 
@@ -228,4 +228,38 @@ header h2 {
     opacity: 0.5;
     cursor: not-allowed;
     pointer-events: none;
+}
+
+.search {
+    position: relative;
+    display: flex;
+    margin-bottom: 15px;
+    width: 28px;
+    height: 30px;
+    transition: width 0.6s;
+}
+
+.search-active {
+    width: 310px;
+    cursor: pointer;
+}
+.search.search-active > .search-icon {
+    right: 8px;
+}
+.search-input {
+    padding: 10px 30px 10px 15px;
+    display: block;
+    width: 100%;
+    border: none;
+    outline: none;
+    border-radius: 20px;
+    background-color: #ffe9ef;
+}
+
+.search-icon {
+    position: absolute;
+    top: 50%;
+    right: -2px;
+    transform: translateY(-50%);
+    color: var(--primary-color);
 }

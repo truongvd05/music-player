@@ -20,7 +20,18 @@
     <body>
         <div class="player">
             <!-- Dashboard -->
+            <!-- search -->
             <div class="dashboard">
+                <form class="search js-search">
+                    <input
+                        class="search-input js-input"
+                        placeholder="tìm kiếm bài hát của bạn"
+                        type="search"
+                        name=""
+                        id=""
+                    />
+                    <i class="fas fa-search search-icon"></i>
+                </form>
                 <!-- Header -->
                 <header>
                     <h4>Now playing:</h4>
@@ -87,7 +98,7 @@
             </div>
 
             <!-- Playlist -->
-            <div class="playlist"></div>
+            <div class="playlist" id="song1"></div>
         </div>
         <script src="./player.js"></script>
     </body>

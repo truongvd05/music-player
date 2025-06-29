@@ -18,6 +18,10 @@ const musicPlayer = {
     random: $(".btn-shuffle"),
     thumb: $(".cd-thumb"),
     body: document.body,
+    searchForm: $(".js-search"),
+    searchInput: $(".js-input"),
+
+    params: new URLSearchParams(location.search),
 
     isplay: false,
     currenindex: 0,
@@ -26,6 +30,8 @@ const musicPlayer = {
     valueVolume: 0,
     lastVolume: 0,
     lastRandom: 0,
+    songIndex: 0,
+    songId: 0,
     // Danh sách bài hát
     songList: [
         {
@@ -60,9 +66,11 @@ const musicPlayer = {
             artist: "Thùy Chi",
         },
     ],
+
     // hàm khởi tạo
     initialize() {
         this.handelGetState();
+        this.handleURL();
         this.renderPlaylist();
         this.loadCurrenSong();
         this.handleClickSong();
@@ -72,8 +80,9 @@ const musicPlayer = {
         this.handleVolume();
         this.handleDisableRandom();
         this.handleKeyBoard();
-
-        // console.log(this.body);
+        this.handleURL();
+        this.handleFirst();
+        this.handleSearch();
 
         // dom evnet
         this.random.onclick = this.handleRandom.bind(this);
@@ -81,6 +90,43 @@ const musicPlayer = {
         this.play.onclick = this.handle_play.bind(this);
         this.next.onclick = this.nextSong.bind(this);
         this.prev.onclick = this.prevSong.bind(this);
+    },
+    // search songs
+    handleSearch() {
+        this.searchForm.addEventListener("click", (e) => {
+            this.searchForm.classList.add("search-active");
+            this.searchInput.focus();
+            // remove keydown when searching
+            this.body.removeEventListener("keydown", this.bindFunctionKeyDown);
+        });
+        this.searchInput.addEventListener("blur", () => {
+            if (!this.searchInput.value.trim()) {
+                this.searchForm.classList.remove("search-active");
+                // add keydown
+                setTimeout(() => this.handleKeyBoard(), 0);
+                this.searchInput.value = "";
+            }
+        });
+        // search songs
+        this.searchInput.addEventListener("input", (event) => {
+            const searchValue = event.target.value.trim().toLowerCase();
+            const newSong = this.songList.filter((song) => {
+                return song.title.includes(String(searchValue.toLowerCase()));
+            });
+            this.renderPlaylist(newSong);
+        });
+    },
+    // handel URL
+    handleURL() {
+        this.songId = this.list.id;
+        this.songIndex = this.params?.get(this.songId) ?? this.currenindex;
+    },
+    // first active
+    handleFirst() {
+        const songs = $$(".song");
+        if (this.params) {
+            songs[this.songIndex].classList.add("active");
+        }
     },
     // random song
     handleRandom() {
@@ -213,7 +259,7 @@ const musicPlayer = {
     getCurrenSong() {
         return this.songList[this.currenindex];
     },
-    // active
+    // active song
     activeSong() {
         const songs = $$(".song");
         songs.forEach((song, index) => {
@@ -302,53 +348,63 @@ const musicPlayer = {
         const songs = $$(".song");
         this.audio.addEventListener("loadedmetadata", () => {
             songs.forEach((song, index) => {
-                song.onclick = (e) => {
+                song.onclick = () => {
                     this.handleRemoveRotate();
                     this.currenindex = index;
                     let currentSong = this.getCurrenSong();
                     this.activeSong();
                     this.audio.src = currentSong.filePath;
+                    this.handleURL();
+                    if (index) {
+                        this.params.set(this.songId, index);
+                    } else {
+                        this.params.delete(this.songId);
+                    }
+                    const Url = this.params.size ? `?${this.params}` : "";
+                    const saveUrl = `${location.pathname}${Url}${location.hash}`;
+                    history.replaceState(null, null, saveUrl);
                     if (this.isplay) {
-                        setTimeout(() => this.handleRotateThumb(), 0);
-                        this.audio.play();
+                        this.audio.onloadeddata = () => {
+                            setTimeout(() => this.handleRotateThumb(), 0);
+                            this.audio.play();
+                        };
                     }
                 };
             });
         });
     },
 
+    // key
+    functionKeyDown(e) {
+        switch (e.code) {
+            case "Space":
+                e.preventDefault();
+                this.handle_play();
+                break;
+            case "ArrowRight":
+                this.nextSong();
+                break;
+            case "ArrowLeft":
+                this.prevSong();
+                break;
+            case "ArrowUp":
+                this.valueVolume = parseFloat(this.volume.value);
+                this.valueVolume = Math.min(1, this.valueVolume + 0.1);
+                this.volume.value = this.valueVolume;
+                this.audio.volume = this.valueVolume;
+                break;
+            case "ArrowDown":
+                this.valueVolume = parseFloat(this.volume.value);
+                this.valueVolume = Math.max(0, this.valueVolume - 0.1);
+                this.volume.value = this.valueVolume;
+                this.audio.volume = this.valueVolume;
+                break;
+        }
+    },
     // support keyboard
     handleKeyBoard() {
-        this.body.addEventListener("keydown", (e) => {
-            switch (e.code) {
-                case "Space":
-                    e.preventDefault();
-                    this.handle_play();
-                    break;
-                case "ArrowRight":
-                    this.nextSong();
-                    break;
-                case "ArrowLeft":
-                    this.prevSong();
-                    break;
-                case "ArrowUp":
-                    this.valueVolume = parseFloat(this.volume.value);
-                    this.valueVolume = Math.min(1, this.valueVolume + 0.1);
-                    this.volume.value = this.valueVolume;
-                    this.audio.volume = this.valueVolume;
-                    console.log(this.audio.volume);
-                    console.log(this.volume.value);
-                    break;
-                case "ArrowDown":
-                    this.valueVolume = parseFloat(this.volume.value);
-                    this.valueVolume = Math.max(0, this.valueVolume - 0.1);
-                    this.volume.value = this.valueVolume;
-                    this.audio.volume = this.valueVolume;
-                    console.log(this.audio.volume);
-                    console.log(this.volume.value);
-                    break;
-            }
-        });
+        this.bindFunctionKeyDown = this.functionKeyDown.bind(this);
+        this.body.addEventListener("keydown", this.bindFunctionKeyDown);
     },
 
     // save user state
@@ -374,8 +430,11 @@ const musicPlayer = {
         }
     },
     // Render danh sách bài hát ra HTML
-    renderPlaylist() {
-        const playlistHTML = this.songList
+    renderPlaylist(data = this.songList) {
+        if (!data.length) {
+            return (this.list.innerHTML = `<p>Không có kết quả nào</p>`);
+        }
+        const playlistHTML = data
             .map((song, index) => {
                 // Kiểm tra xem bài này có phải đang phát không
                 const isCurrentSong = index === this.currenindex;
