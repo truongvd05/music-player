@@ -16,6 +16,8 @@ const musicPlayer = {
     icon_volume: $(".js-volume-icon"),
     volume: $(".js-volume"),
     random: $(".btn-shuffle"),
+    thumb: $(".cd-thumb"),
+    body: document.body,
 
     isplay: false,
     currenindex: 0,
@@ -60,6 +62,7 @@ const musicPlayer = {
     ],
     // hàm khởi tạo
     initialize() {
+        this.handelGetState();
         this.renderPlaylist();
         this.loadCurrenSong();
         this.handleClickSong();
@@ -68,8 +71,9 @@ const musicPlayer = {
         this.handleLoop();
         this.handleVolume();
         this.handleDisableRandom();
+        this.handleKeyBoard();
 
-        // console.log(this.random);
+        // console.log(this.body);
 
         // dom evnet
         this.random.onclick = this.handleRandom.bind(this);
@@ -81,7 +85,7 @@ const musicPlayer = {
     // random song
     handleRandom() {
         this.lastRandom = this.currenindex;
-
+        this.handleRemoveRotate();
         let songRandom;
         if (this.songList.length !== 1) {
             do {
@@ -92,7 +96,9 @@ const musicPlayer = {
             this.songList[this.currenindex].filePath;
             this.loadCurrenSong();
             if (this.isplay) {
+                setTimeout(() => this.handleRotateThumb(), 0);
                 this.audio.play();
+                this.handleUserState();
             }
         }
     },
@@ -108,13 +114,11 @@ const musicPlayer = {
     handleLoop() {
         this.loop.onclick = () => {
             this.isloop = !this.isloop;
-
             if (this.isloop) {
                 this.loop.classList.add("active");
                 this.audio.loop = this.isloop;
             } else {
                 this.audio.loop = this.isloop;
-
                 this.loop.classList.remove("active");
             }
         };
@@ -123,9 +127,8 @@ const musicPlayer = {
     handleVolume() {
         this.volume.oninput = () => {
             this.valueVolume = this.volume.value;
-            this.audio.volume = valueVolume;
+            this.audio.volume = this.valueVolume;
             this.lastVolume = this.volume.value;
-
             if (!this.audio.volume) {
                 this.icon_volume.classList.replace(
                     "fa-volume-up",
@@ -154,6 +157,7 @@ const musicPlayer = {
             this.isvolume = !this.isvolume;
             this.icon_volume.classList.replace("fa-volume-off", "fa-volume-up");
         }
+        this.handleUserState();
     },
     // tua nhạc
     handleInput() {
@@ -170,14 +174,16 @@ const musicPlayer = {
             this.input.value = percent;
             this.handleGetStart();
             this.handleGetEnd();
+            this.handleUserState();
+            this.handleUserState();
+
             if (!this.isloop) {
                 this.endSong();
             }
         };
     },
-    // end thì next song
 
-    // total song runing
+    // total time song runing
     handleGetStart() {
         const munius = Math.floor(this.audio.currentTime / 60);
         const second = Math.floor(this.audio.currentTime % 60);
@@ -193,9 +199,9 @@ const musicPlayer = {
     loadCurrenSong() {
         const currentSong = this.getCurrenSong();
         this.audio.src = currentSong.filePath;
-
         this.handleTitle();
         this.activeSong();
+        this.handleUserState();
         // wait to loaded data to render
         this.audio.addEventListener("loadedmetadata", () => {
             this.input.value = 0;
@@ -213,7 +219,7 @@ const musicPlayer = {
         songs.forEach((song, index) => {
             song.classList.toggle("active", index === this.currenindex);
         });
-        // đổi tên bài nhạc
+        // lấy tên bài nhạc
         this.handleTitle();
     },
     // đổi tên nhạc khi next bài
@@ -227,28 +233,62 @@ const musicPlayer = {
             this.isplay = !this.isplay;
             this.audio.play();
             this.icon.classList.replace("fa-play", "fa-pause");
+            this.handleRotateThumb();
         } else {
             this.isplay = !this.isplay;
             this.audio.pause();
             this.icon.classList.replace("fa-pause", "fa-play");
+            this.thumb.classList.add("pause");
         }
+    },
+    // pause rotate thumb
+    handleRotateThumb() {
+        this.thumb.classList.add("cd-thumb-rotate");
+        this.thumb.classList.remove("pause");
+    },
+    // remove rotate thumb
+    handleRemoveRotate() {
+        this.thumb.classList.remove("cd-thumb-rotate");
     },
 
     // next song
     nextSong() {
+        this.handleRemoveRotate();
         this.isplay = true;
         this.currenindex++;
         this.currenindex = (this.currenindex + this.songList.length) % 5;
         let currentSong = this.getCurrenSong();
         this.activeSong();
         this.audio.src = currentSong.filePath;
+        this.handleUserState();
         if (this.isplay) {
-            this.icon.classList.replace("fa-play", "fa-pause");
-            this.audio.play();
+            this.audio.onloadeddata = () => {
+                setTimeout(() => this.handleRotateThumb(), 0);
+                this.icon.classList.replace("fa-play", "fa-pause");
+                this.audio.play();
+            };
+        }
+    },
+    // return song
+    prevSong() {
+        this.handleRemoveRotate();
+        this.isplay = true;
+        this.currenindex--;
+        this.currenindex = (this.currenindex + this.songList.length) % 5;
+        let currentSong = this.getCurrenSong();
+        this.activeSong();
+        this.audio.src = currentSong.filePath;
+        this.handleUserState();
+        if (this.isplay) {
+            this.audio.onloadeddata = () => {
+                this.handleRotateThumb();
+                this.icon.classList.replace("fa-play", "fa-pause");
+                this.audio.play();
+            };
         }
     },
 
-    // end Song
+    // if end Song
     endSong() {
         this.audio.onended = () => {
             if (!this.isloop) {
@@ -256,31 +296,20 @@ const musicPlayer = {
             }
         };
     },
-    // return song
-    prevSong() {
-        this.isplay = true;
 
-        this.currenindex--;
-        this.currenindex = (this.currenindex + this.songList.length) % 5;
-        let currentSong = this.getCurrenSong();
-        this.activeSong();
-        if (this.isplay) {
-            this.icon.classList.replace("fa-play", "fa-pause");
-            this.audio.src = currentSong.filePath;
-            this.audio.play();
-        }
-    },
     // handle play click to list
     handleClickSong() {
         const songs = $$(".song");
         this.audio.addEventListener("loadedmetadata", () => {
             songs.forEach((song, index) => {
                 song.onclick = (e) => {
+                    this.handleRemoveRotate();
                     this.currenindex = index;
                     let currentSong = this.getCurrenSong();
                     this.activeSong();
                     this.audio.src = currentSong.filePath;
                     if (this.isplay) {
+                        setTimeout(() => this.handleRotateThumb(), 0);
                         this.audio.play();
                     }
                 };
@@ -288,6 +317,62 @@ const musicPlayer = {
         });
     },
 
+    // support keyboard
+    handleKeyBoard() {
+        this.body.addEventListener("keydown", (e) => {
+            switch (e.code) {
+                case "Space":
+                    e.preventDefault();
+                    this.handle_play();
+                    break;
+                case "ArrowRight":
+                    this.nextSong();
+                    break;
+                case "ArrowLeft":
+                    this.prevSong();
+                    break;
+                case "ArrowUp":
+                    this.valueVolume = parseFloat(this.volume.value);
+                    this.valueVolume = Math.min(1, this.valueVolume + 0.1);
+                    this.volume.value = this.valueVolume;
+                    this.audio.volume = this.valueVolume;
+                    console.log(this.audio.volume);
+                    console.log(this.volume.value);
+                    break;
+                case "ArrowDown":
+                    this.valueVolume = parseFloat(this.volume.value);
+                    this.valueVolume = Math.max(0, this.valueVolume - 0.1);
+                    this.volume.value = this.valueVolume;
+                    this.audio.volume = this.valueVolume;
+                    console.log(this.audio.volume);
+                    console.log(this.volume.value);
+                    break;
+            }
+        });
+    },
+
+    // save user state
+    handleUserState() {
+        localStorage.setItem(
+            "listener",
+            JSON.stringify({
+                index: this.currenindex,
+                time: this.audio.currentTime,
+                volume: this.audio.volume,
+            })
+        );
+    },
+    // get user state
+    handelGetState() {
+        const saved = JSON.parse(localStorage.getItem("listener"));
+        if (saved) {
+            this.currenindex = saved.index ?? 0;
+            this.audio.currentTime = saved.time ?? 0;
+            const volume = saved.volume ?? 0.5;
+            this.audio.volume = volume;
+            this.volume.value = volume;
+        }
+    },
     // Render danh sách bài hát ra HTML
     renderPlaylist() {
         const playlistHTML = this.songList

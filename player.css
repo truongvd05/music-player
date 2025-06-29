@@ -25,6 +25,7 @@ html {
 }
 
 .dashboard {
+    z-index: 1;
     padding: 16px 16px 14px;
     background-color: #fff;
     position: fixed;
@@ -67,6 +68,20 @@ header h2 {
     margin: auto;
 }
 
+.cd-thumb-rotate {
+    animation: myAnim 16s linear  infinite;
+}
+@keyframes myAnim {
+  from {
+    transform: rotate(0deg);
+  }
+  to { 
+    transform: rotate(360deg);
+    }
+}
+.pause {
+    animation-play-state: paused;
+}
 /* CONTROL */
 .control {
     display: flex;
@@ -187,15 +202,14 @@ header h2 {
 .volume {
     position: absolute;
     top: 50%;
-    right: -80%;
+    right: -70%;
     rotate: -90deg;
     display: flex;
     flex-direction: row;
     gap: 25px;
 }
 
-.input-volume{
-}
+
 
 .volume-active {
     visibility: hidden;
