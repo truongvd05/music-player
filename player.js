@@ -20,6 +20,9 @@ const musicPlayer = {
     body: document.body,
     searchForm: $(".js-search"),
     searchInput: $(".js-input"),
+    allSongs: $(".wrap-btn"),
+    AllBtn: $(".btn-all"),
+    LoveBtn: $(".btn-love"),
 
     params: new URLSearchParams(location.search),
 
@@ -39,6 +42,7 @@ const musicPlayer = {
             filePath: "./songs/ChayNgayDi-SonTungMTP-5468704.mp3",
             title: "Chạy ngay đi",
             artist: "Sơn Tùng M-TP",
+            isheart: false,
         },
         {
             id: 2,
@@ -46,29 +50,35 @@ const musicPlayer = {
                 "./songs/CoChacYeuLaDayOnionnRemix-SonTungMTPOnionn-7022615.mp3",
             title: "Có Chắc yêu là đay",
             artist: "Sơn Tùng M-TP",
+            isheart: false,
         },
         {
             id: 3,
             filePath: "./songs/HayTraoChoAnh-SonTungMTPSnoopDogg-6010660.mp3",
             title: "Hãy trao cho anh",
             artist: "Sơn Tùng M-TP ft. Snoop Dogg",
+            isheart: false,
         },
         {
             id: 4,
             filePath: "./songs/Gu-FreakySeachains-7029816.mp3",
             title: "Gu",
             artist: "FreakySeachains",
+            isheart: false,
         },
         {
             id: 5,
             filePath: "./songs/BeoDatMayTroi-ThuyChi-13750875.mp3",
             title: "bèo dạt mây trôi",
             artist: "Thùy Chi",
+            isheart: false,
         },
     ],
 
     // hàm khởi tạo
     initialize() {
+        this.handleBtnAll();
+        this.handleBtnLove();
         this.handelGetState();
         this.handleURL();
         this.renderPlaylist();
@@ -83,6 +93,7 @@ const musicPlayer = {
         this.handleURL();
         this.handleFirst();
         this.handleSearch();
+        this.handleClickLove();
 
         // dom evnet
         this.random.onclick = this.handleRandom.bind(this);
@@ -91,6 +102,7 @@ const musicPlayer = {
         this.next.onclick = this.nextSong.bind(this);
         this.prev.onclick = this.prevSong.bind(this);
     },
+
     // search songs
     handleSearch() {
         this.searchForm.addEventListener("click", (e) => {
@@ -341,31 +353,67 @@ const musicPlayer = {
             }
         };
     },
+    // btn all
+    handleBtnAll() {
+        this.AllBtn.onclick = () => {
+            this.renderPlaylist();
+            this.LoveBtn.classList.remove("btn-active");
+            this.AllBtn.classList.add("btn-active");
+            this.handleClickSong();
+        };
+    },
+    handleBtnLove() {
+        this.LoveBtn.onclick = () => {
+            this.AllBtn.classList.remove("btn-active");
+            this.LoveBtn.classList.add("btn-active");
+        };
+    },
 
+    // click love song
+    handleClickLove() {
+        this.LoveBtn.addEventListener("click", () => {
+            this.handleBtnLove();
+            const newSong = this.songList.filter((song) => {
+                return song.isheart === true;
+            });
+            this.renderPlaylist(newSong);
+            this.handleClickSong();
+        });
+    },
     // handle play click to list
     handleClickSong() {
         const songs = $$(".song");
         songs.forEach((song, index) => {
-            song.onclick = () => {
-                this.handleRemoveRotate();
-                this.currenindex = index;
-                let currentSong = this.getCurrenSong();
-                this.activeSong();
-                this.audio.src = currentSong.filePath;
-                this.handleURL();
-                if (index) {
-                    this.params.set(this.songId, index);
+            song.onclick = (e) => {
+                const heartActive = e.target.closest(".heart");
+                if (heartActive) {
+                    heartActive.classList.toggle("heart-active");
+                    if (heartActive.classList.contains("heart-active")) {
+                        this.songList[index].isheart = true;
+                    } else {
+                        this.songList[index].isheart = false;
+                    }
                 } else {
-                    this.params.delete(this.songId);
-                }
-                const Url = this.params.size ? `?${this.params}` : "";
-                const saveUrl = `${location.pathname}${Url}${location.hash}`;
-                history.replaceState(null, null, saveUrl);
-                if (this.isplay) {
-                    this.audio.onloadeddata = () => {
-                        setTimeout(() => this.handleRotateThumb(), 0);
-                        this.audio.play();
-                    };
+                    this.handleRemoveRotate();
+                    this.currenindex = index;
+                    let currentSong = this.getCurrenSong();
+                    this.activeSong();
+                    this.audio.src = currentSong.filePath;
+                    this.handleURL();
+                    if (index) {
+                        this.params.set(this.songId, index);
+                    } else {
+                        this.params.delete(this.songId);
+                    }
+                    const Url = this.params.size ? `?${this.params}` : "";
+                    const saveUrl = `${location.pathname}${Url}${location.hash}`;
+                    history.replaceState(null, null, saveUrl);
+                    if (this.isplay) {
+                        this.audio.onloadeddata = () => {
+                            setTimeout(() => this.handleRotateThumb(), 0);
+                            this.audio.play();
+                        };
+                    }
                 }
             };
         });
@@ -436,7 +484,9 @@ const musicPlayer = {
                 // Kiểm tra xem bài này có phải đang phát không
                 const isCurrentSong = index === this.currenindex;
 
-                return `<div class="song ${isCurrentSong ? "active" : ""}">
+                return `<div class="song ${
+                    isCurrentSong ? "active" : ""
+                }" data-index="${index}">
                     <div
                         class="thumb"
                         style="
@@ -450,6 +500,9 @@ const musicPlayer = {
                     <div class="option">
                         <i class="fas fa-ellipsis-h"></i>
                     </div>
+                    <i class="fas fa-heart heart ${
+                        song.isheart ? "heart-active" : ""
+                    }"></i>
                 </div>`;
             })
             .join("");

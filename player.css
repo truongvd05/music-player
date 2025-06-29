@@ -136,12 +136,43 @@ header h2 {
 }
 
 /* PLAYLIST */
-.playlist {
+.wrap-btn {
+    display: flex;
+    gap: 20px;
     margin-top: 450px;
+    padding: 12px;
+}
+button {
+    width: 100px;
+    padding: 10px;
+    cursor: pointer;
+    border: none;
+    color: black;
+    background-color: white;
+}
+
+.btn-active {
+    background-color: #ec1f55;
+    border: none;
+    color: white;
+}
+
+.heart {
+    position: absolute;
+    top: 7px;
+    right: 7px;
+}
+
+.heart-active {
+    color: rgb(255, 87, 196);
+}
+
+.playlist {
     padding: 12px;
 }
 
 .song {
+    position: relative;
     display: flex;
     align-items: center;
     margin-bottom: 12px;
