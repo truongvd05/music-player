@@ -104,7 +104,6 @@ const musicPlayer = {
                 this.searchForm.classList.remove("search-active");
                 // add keydown
                 setTimeout(() => this.handleKeyBoard(), 0);
-                this.searchInput.value = "";
             }
         });
         // search songs
@@ -346,31 +345,29 @@ const musicPlayer = {
     // handle play click to list
     handleClickSong() {
         const songs = $$(".song");
-        this.audio.addEventListener("loadedmetadata", () => {
-            songs.forEach((song, index) => {
-                song.onclick = () => {
-                    this.handleRemoveRotate();
-                    this.currenindex = index;
-                    let currentSong = this.getCurrenSong();
-                    this.activeSong();
-                    this.audio.src = currentSong.filePath;
-                    this.handleURL();
-                    if (index) {
-                        this.params.set(this.songId, index);
-                    } else {
-                        this.params.delete(this.songId);
-                    }
-                    const Url = this.params.size ? `?${this.params}` : "";
-                    const saveUrl = `${location.pathname}${Url}${location.hash}`;
-                    history.replaceState(null, null, saveUrl);
-                    if (this.isplay) {
-                        this.audio.onloadeddata = () => {
-                            setTimeout(() => this.handleRotateThumb(), 0);
-                            this.audio.play();
-                        };
-                    }
-                };
-            });
+        songs.forEach((song, index) => {
+            song.onclick = () => {
+                this.handleRemoveRotate();
+                this.currenindex = index;
+                let currentSong = this.getCurrenSong();
+                this.activeSong();
+                this.audio.src = currentSong.filePath;
+                this.handleURL();
+                if (index) {
+                    this.params.set(this.songId, index);
+                } else {
+                    this.params.delete(this.songId);
+                }
+                const Url = this.params.size ? `?${this.params}` : "";
+                const saveUrl = `${location.pathname}${Url}${location.hash}`;
+                history.replaceState(null, null, saveUrl);
+                if (this.isplay) {
+                    this.audio.onloadeddata = () => {
+                        setTimeout(() => this.handleRotateThumb(), 0);
+                        this.audio.play();
+                    };
+                }
+            };
         });
     },
 
