@@ -432,12 +432,16 @@ const musicPlayer = {
                 this.prevSong();
                 break;
             case "ArrowUp":
+                e.preventDefault();
+
                 this.valueVolume = parseFloat(this.volume.value);
                 this.valueVolume = Math.min(1, this.valueVolume + 0.1);
                 this.volume.value = this.valueVolume;
                 this.audio.volume = this.valueVolume;
                 break;
             case "ArrowDown":
+                e.preventDefault();
+
                 this.valueVolume = parseFloat(this.volume.value);
                 this.valueVolume = Math.max(0, this.valueVolume - 0.1);
                 this.volume.value = this.valueVolume;

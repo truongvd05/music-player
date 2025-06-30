@@ -234,7 +234,7 @@ button {
 .volume {
     position: absolute;
     top: 50%;
-    right: -70%;
+    right: -60%;
     rotate: -90deg;
     display: flex;
     flex-direction: row;
