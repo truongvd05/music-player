@@ -94,6 +94,8 @@ const musicPlayer = {
         this.handleFirst();
         this.handleSearch();
         this.handleClickLove();
+        this.endSong();
+        this.handleGetEnd();
 
         // dom evnet
         this.random.onclick = this.handleRandom.bind(this);
@@ -229,16 +231,9 @@ const musicPlayer = {
                 (this.audio.currentTime / this.audio.duration) * 100;
             this.input.value = percent;
             this.handleGetStart();
-            this.handleGetEnd();
             this.handleUserState();
-            this.handleUserState();
-
-            if (!this.isloop) {
-                this.endSong();
-            }
         };
     },
-
     // total time song runing
     handleGetStart() {
         const munius = Math.floor(this.audio.currentTime / 60);
@@ -275,17 +270,17 @@ const musicPlayer = {
     },
     // active song
     activeSong() {
+        const current = $$(".song.active")[0];
         const songs = $$(".song");
-        songs.forEach((song, index) => {
-            song.classList.toggle("active", index === this.currenindex);
-        });
-        // lấy tên bài nhạc
+        if (current) current.classList.remove("active");
+        const newActive = songs[this.currenindex];
+        if (newActive) newActive.classList.add("active");
+        // Cập nhật tiêu đề
         this.handleTitle();
     },
-    // đổi tên nhạc khi next bài
+    // update title
     handleTitle() {
-        const currentSong = this.getCurrenSong();
-        this.currenSong.innerText = currentSong.title;
+        this.currenSong.innerText = this.getCurrenSong().title;
     },
     // play
     handle_play() {
@@ -316,7 +311,8 @@ const musicPlayer = {
         this.handleRemoveRotate();
         this.isplay = true;
         this.currenindex++;
-        this.currenindex = (this.currenindex + this.songList.length) % 5;
+        this.currenindex =
+            (this.currenindex + this.songList.length) % this.songList.length;
         let currentSong = this.getCurrenSong();
         this.activeSong();
         this.audio.src = currentSong.filePath;
@@ -341,7 +337,7 @@ const musicPlayer = {
         this.handleUserState();
         if (this.isplay) {
             this.audio.onloadeddata = () => {
-                this.handleRotateThumb();
+                setTimeout(() => this.handleRotateThumb(), 0);
                 this.icon.classList.replace("fa-play", "fa-pause");
                 this.audio.play();
             };
@@ -365,6 +361,7 @@ const musicPlayer = {
             this.handleClickSong();
         };
     },
+    // Favorite songs
     handleBtnLove() {
         this.LoveBtn.onclick = () => {
             this.AllBtn.classList.remove("btn-active");
@@ -421,8 +418,7 @@ const musicPlayer = {
             };
         });
     },
-
-    // key
+    // key event
     functionKeyDown(e) {
         switch (e.code) {
             case "Space":
@@ -437,7 +433,6 @@ const musicPlayer = {
                 break;
             case "ArrowUp":
                 e.preventDefault();
-
                 this.valueVolume = parseFloat(this.volume.value);
                 this.valueVolume = Math.min(1, this.valueVolume + 0.1);
                 this.volume.value = this.valueVolume;
@@ -445,11 +440,18 @@ const musicPlayer = {
                 break;
             case "ArrowDown":
                 e.preventDefault();
-
                 this.valueVolume = parseFloat(this.volume.value);
                 this.valueVolume = Math.max(0, this.valueVolume - 0.1);
                 this.volume.value = this.valueVolume;
                 this.audio.volume = this.valueVolume;
+                break;
+            case "KeyM":
+                e.preventDefault();
+                this.handleIconVolume();
+                break;
+            case "KeyL":
+                e.preventDefault();
+                this.handleLoop();
                 break;
         }
     },
@@ -490,7 +492,6 @@ const musicPlayer = {
             .map((song, index) => {
                 // Kiểm tra xem bài này có phải đang phát không
                 const isCurrentSong = index === this.currenindex;
-
                 return `<div class="song ${
                     isCurrentSong ? "active" : ""
                 }" data-index="${index}">
