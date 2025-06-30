@@ -242,14 +242,18 @@ const musicPlayer = {
     // total time song runing
     handleGetStart() {
         const munius = Math.floor(this.audio.currentTime / 60);
-        const second = Math.floor(this.audio.currentTime % 60);
+        const second = Math.floor(this.audio.currentTime % 60)
+            .toString()
+            .padStart(2, "0");
         this.start.innerText = `${munius}:${second}`;
     },
     // total song times
     handleGetEnd() {
-        const munius = Math.floor(this.audio.duration / 60);
-        const second = Math.floor(this.audio.duration % 60);
-        this.end.innerText = `${munius}:${second}`;
+        const minutes = Math.floor(this.audio.duration / 60);
+        const seconds = Math.floor(this.audio.duration % 60)
+            .toString()
+            .padStart(2, "0");
+        this.end.innerText = `${minutes}:${seconds}`;
     },
     // bài hiện tại
     loadCurrenSong() {
