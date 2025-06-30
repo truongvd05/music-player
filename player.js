@@ -243,13 +243,13 @@ const musicPlayer = {
     handleGetStart() {
         const munius = Math.floor(this.audio.currentTime / 60);
         const second = Math.floor(this.audio.currentTime % 60);
-        this.start.innerText = `${munius}p ${second}s`;
+        this.start.innerText = `${munius}:${second}`;
     },
     // total song times
     handleGetEnd() {
         const munius = Math.floor(this.audio.duration / 60);
         const second = Math.floor(this.audio.duration % 60);
-        this.end.innerText = `${munius}p ${second}s`;
+        this.end.innerText = `${munius}:${second}`;
     },
     // bài hiện tại
     loadCurrenSong() {
