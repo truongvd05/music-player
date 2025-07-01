@@ -176,6 +176,8 @@ const musicPlayer = {
     },
     // random song
     handleRandom() {
+        this.handleClickSong();
+
         this.lastRandom = this.currenindex;
         this.handleRemoveRotate();
         let songRandom;
@@ -189,8 +191,10 @@ const musicPlayer = {
             this.loadCurrenSong();
             if (this.isplay) {
                 setTimeout(() => this.handleRotateThumb(), 0);
-                this.audio.play();
-                this.handleUserState();
+                this.audio.onloadeddata = () => {
+                    this.audio.play();
+                    this.handleUserState();
+                };
             }
         }
     },
@@ -444,15 +448,10 @@ const musicPlayer = {
     // get Love song
     handleGetLoveSong() {
         const loveSong = JSON.parse(localStorage.getItem("loveSong")) || [];
-        console.log(loveSong);
-
         this.songList.forEach((song) => {
             const isloved = loveSong.find((love) => song.id === love.id);
-            console.log(isloved);
-
             song.isheart = isloved;
         });
-        console.log(this.songList);
 
         this.renderPlaylist(this.songList);
     },
