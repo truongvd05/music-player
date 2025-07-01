@@ -35,6 +35,7 @@ const musicPlayer = {
     lastRandom: 0,
     songIndex: 0,
     songId: 0,
+    ArrLoveSong: [],
     // Danh sách bài hát
     songList: [
         {
@@ -69,8 +70,29 @@ const musicPlayer = {
         {
             id: 5,
             filePath: "./songs/BeoDatMayTroi-ThuyChi-13750875.mp3",
-            title: "bèo dạt mây trôi",
+            title: "Bèo dạt mây trôi",
             artist: "Thùy Chi",
+            isheart: false,
+        },
+        {
+            id: 6,
+            filePath: "./songs/LayChongSomLamGi-HuyRTuanCry-6175716.mp3",
+            title: "Lấy Chồng Sớm Làm Gì",
+            artist: "HuyR, Tuấn Cry",
+            isheart: false,
+        },
+        {
+            id: 7,
+            filePath: "./songs/MatMoc-PhamNguyenNgocVAnhAnNhi-7793420.mp3",
+            title: "Mặt mộc",
+            artist: "Phạm Nguyên Ngọc x VAnh x Ân Nhi",
+            isheart: false,
+        },
+        {
+            id: 8,
+            filePath: "./songs/SeeTinhCucakRemix-HoangThuyLinh-7208579.mp3",
+            title: "See tình",
+            artist: "Hoàng Thùy Linh",
             isheart: false,
         },
     ],
@@ -90,12 +112,12 @@ const musicPlayer = {
         this.handleVolume();
         this.handleDisableRandom();
         this.handleKeyBoard();
-        this.handleURL();
         this.handleFirst();
         this.handleSearch();
         this.handleClickLove();
         this.endSong();
         this.handleGetEnd();
+        this.handleGetLoveSong();
 
         // dom evnet
         this.random.onclick = this.handleRandom.bind(this);
@@ -103,6 +125,17 @@ const musicPlayer = {
         this.play.onclick = this.handle_play.bind(this);
         this.next.onclick = this.nextSong.bind(this);
         this.prev.onclick = this.prevSong.bind(this);
+    },
+    // scroll songs
+    handleScroll() {
+        const songs = $$(".song");
+        const currenSong = songs[this.currenindex];
+        const offset = 500;
+        const rect = currenSong.getBoundingClientRect();
+        window.scrollTo({
+            top: window.scrollY + rect.top - offset,
+            behavior: "smooth",
+        });
     },
 
     // search songs
@@ -138,7 +171,7 @@ const musicPlayer = {
     handleFirst() {
         const songs = $$(".song");
         if (this.params) {
-            songs[this.songIndex].classList.add("active");
+            songs[this.currenindex].classList.add("active");
         }
     },
     // random song
@@ -151,6 +184,7 @@ const musicPlayer = {
                 songRandom = Math.floor(Math.random() * this.songList.length);
             } while (songRandom === this.lastRandom);
             this.currenindex = songRandom;
+            this.handleScroll(this.currenindex);
             this.songList[this.currenindex].filePath;
             this.loadCurrenSong();
             if (this.isplay) {
@@ -314,9 +348,12 @@ const musicPlayer = {
         this.currenindex =
             (this.currenindex + this.songList.length) % this.songList.length;
         let currentSong = this.getCurrenSong();
+        this.songId = this.songIndex;
         this.activeSong();
         this.audio.src = currentSong.filePath;
         this.handleUserState();
+        this.handleParam(this.currenindex);
+        this.handleScroll();
         if (this.isplay) {
             this.audio.onloadeddata = () => {
                 setTimeout(() => this.handleRotateThumb(), 0);
@@ -330,11 +367,13 @@ const musicPlayer = {
         this.handleRemoveRotate();
         this.isplay = true;
         this.currenindex--;
-        this.currenindex = (this.currenindex + this.songList.length) % 5;
+        this.currenindex =
+            (this.currenindex + this.songList.length) % this.songList.length;
         let currentSong = this.getCurrenSong();
         this.activeSong();
         this.audio.src = currentSong.filePath;
         this.handleUserState();
+        this.handleScroll();
         if (this.isplay) {
             this.audio.onloadeddata = () => {
                 setTimeout(() => this.handleRotateThumb(), 0);
@@ -355,9 +394,9 @@ const musicPlayer = {
     // btn all
     handleBtnAll() {
         this.AllBtn.onclick = () => {
-            this.renderPlaylist();
             this.LoveBtn.classList.remove("btn-active");
             this.AllBtn.classList.add("btn-active");
+            this.handleGetLoveSong();
             this.handleClickSong();
         };
     },
@@ -372,13 +411,50 @@ const musicPlayer = {
     // click love song
     handleClickLove() {
         this.LoveBtn.addEventListener("click", () => {
+            const loveSong = JSON.parse(localStorage.getItem("loveSong")) || [];
             this.handleBtnLove();
-            const newSong = this.songList.filter((song) => {
-                return song.isheart === true;
-            });
-            this.renderPlaylist(newSong);
+            this.renderPlaylist(loveSong);
             this.handleClickSong();
         });
+    },
+    // handle param
+    handleParam(index) {
+        this.songId = this.list.id;
+        if (index) {
+            this.params.set(this.songId, index);
+        } else {
+            this.params.delete(this.songId, index);
+        }
+        const Url = this.params.size ? `?${this.params}` : "";
+        const saveUrl = `${location.pathname}${Url}${location.hash}`;
+        history.replaceState(null, null, saveUrl);
+    },
+    // heart active
+    handleHeart(heartActive, index) {
+        heartActive.classList.toggle("heart-active");
+        if (heartActive.classList.contains("heart-active")) {
+            this.songList[index].isheart = true;
+            this.ArrLoveSong.unshift(this.songList[index]);
+        } else {
+            this.songList[index].isheart = false;
+            this.ArrLoveSong.shift(this.songList[index]);
+        }
+        localStorage.setItem("loveSong", JSON.stringify(this.ArrLoveSong));
+    },
+    // get Love song
+    handleGetLoveSong() {
+        const loveSong = JSON.parse(localStorage.getItem("loveSong")) || [];
+        console.log(loveSong);
+
+        this.songList.forEach((song) => {
+            const isloved = loveSong.find((love) => song.id === love.id);
+            console.log(isloved);
+
+            song.isheart = isloved;
+        });
+        console.log(this.songList);
+
+        this.renderPlaylist(this.songList);
     },
     // handle play click to list
     handleClickSong() {
@@ -387,27 +463,15 @@ const musicPlayer = {
             song.onclick = (e) => {
                 const heartActive = e.target.closest(".heart");
                 if (heartActive) {
-                    heartActive.classList.toggle("heart-active");
-                    if (heartActive.classList.contains("heart-active")) {
-                        this.songList[index].isheart = true;
-                    } else {
-                        this.songList[index].isheart = false;
-                    }
+                    this.handleHeart(heartActive, index);
                 } else {
                     this.handleRemoveRotate();
                     this.currenindex = index;
-                    let currentSong = this.getCurrenSong();
+                    this.currentSong = this.getCurrenSong();
                     this.activeSong();
-                    this.audio.src = currentSong.filePath;
+                    this.audio.src = this.currentSong.filePath;
                     this.handleURL();
-                    if (index) {
-                        this.params.set(this.songId, index);
-                    } else {
-                        this.params.delete(this.songId);
-                    }
-                    const Url = this.params.size ? `?${this.params}` : "";
-                    const saveUrl = `${location.pathname}${Url}${location.hash}`;
-                    history.replaceState(null, null, saveUrl);
+                    this.handleParam(this.currenindex);
                     if (this.isplay) {
                         this.audio.onloadeddata = () => {
                             setTimeout(() => this.handleRotateThumb(), 0);
@@ -460,7 +524,6 @@ const musicPlayer = {
         this.bindFunctionKeyDown = this.functionKeyDown.bind(this);
         this.body.addEventListener("keydown", this.bindFunctionKeyDown);
     },
-
     // save user state
     handleUserState() {
         localStorage.setItem(
