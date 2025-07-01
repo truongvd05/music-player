@@ -105,7 +105,6 @@ const musicPlayer = {
         this.handleURL();
         this.renderPlaylist();
         this.loadCurrenSong();
-        this.handleClickSong();
         this.handleInput();
         this.handleTime();
         this.handleLoop();
@@ -118,6 +117,7 @@ const musicPlayer = {
         this.endSong();
         this.handleGetEnd();
         this.handleGetLoveSong();
+        this.handleClickSong();
 
         // dom evnet
         this.random.onclick = this.handleRandom.bind(this);
