@@ -191,7 +191,7 @@ const musicPlayer = {
             this.loadCurrenSong();
             if (this.isplay) {
                 setTimeout(() => this.handleRotateThumb(), 0);
-                this.audio.onloadeddata = () => {
+                this.audio.oncanplay = () => {
                     this.audio.play();
                     this.handleUserState();
                 };
@@ -359,7 +359,7 @@ const musicPlayer = {
         this.handleParam(this.currenindex);
         this.handleScroll();
         if (this.isplay) {
-            this.audio.onloadeddata = () => {
+            this.audio.oncanplay = () => {
                 setTimeout(() => this.handleRotateThumb(), 0);
                 this.icon.classList.replace("fa-play", "fa-pause");
                 this.audio.play();
@@ -379,7 +379,7 @@ const musicPlayer = {
         this.handleUserState();
         this.handleScroll();
         if (this.isplay) {
-            this.audio.onloadeddata = () => {
+            this.audio.oncanplay = () => {
                 setTimeout(() => this.handleRotateThumb(), 0);
                 this.icon.classList.replace("fa-play", "fa-pause");
                 this.audio.play();
@@ -472,7 +472,7 @@ const musicPlayer = {
                     this.handleURL();
                     this.handleParam(this.currenindex);
                     if (this.isplay) {
-                        this.audio.onloadeddata = () => {
+                        this.audio.oncanplay = () => {
                             setTimeout(() => this.handleRotateThumb(), 0);
                             this.audio.play();
                         };
