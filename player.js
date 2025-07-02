@@ -177,7 +177,6 @@ const musicPlayer = {
     // random song
     handleRandom() {
         this.handleClickSong();
-
         this.lastRandom = this.currenindex;
         this.handleRemoveRotate();
         let songRandom;
@@ -425,9 +424,9 @@ const musicPlayer = {
     handleParam(index) {
         this.songId = this.list.id;
         if (index) {
-            this.params.set(this.songId, index);
+            this.params.set(this.songId, this.songList[index].title);
         } else {
-            this.params.delete(this.songId, index);
+            this.params.delete(this.songId, this.songList[index].title);
         }
         const Url = this.params.size ? `?${this.params}` : "";
         const saveUrl = `${location.pathname}${Url}${location.hash}`;
