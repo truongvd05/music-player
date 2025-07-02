@@ -55,9 +55,9 @@ const musicPlayer = {
         },
         {
             id: 3,
-            filePath: "./songs/HayTraoChoAnh-SonTungMTPSnoopDogg-6010660.mp3",
-            title: "Hãy trao cho anh",
-            artist: "Sơn Tùng M-TP ft. Snoop Dogg",
+            filePath: "./songs/ThuDoCypher.mp3",
+            title: "Thủ Đô Cypher (Quang Nhật Remix)",
+            artist: "Beck'Stage X Biti's Hunter",
             isheart: false,
         },
         {
@@ -96,7 +96,6 @@ const musicPlayer = {
             isheart: false,
         },
     ],
-
     // hàm khởi tạo
     initialize() {
         this.handleBtnAll();
@@ -137,7 +136,6 @@ const musicPlayer = {
             behavior: "smooth",
         });
     },
-
     // search songs
     handleSearch() {
         this.searchForm.addEventListener("click", (e) => {
@@ -170,9 +168,7 @@ const musicPlayer = {
     // first active
     handleFirst() {
         const songs = $$(".song");
-        if (this.params) {
-            songs[this.currenindex].classList.add("active");
-        }
+        songs[this.currenindex].classList.add("active");
     },
     // random song
     handleRandom() {
@@ -342,7 +338,6 @@ const musicPlayer = {
     handleRemoveRotate() {
         this.thumb.classList.remove("cd-thumb-rotate");
     },
-
     // next song
     nextSong() {
         this.handleRemoveRotate();
@@ -385,7 +380,6 @@ const musicPlayer = {
             };
         }
     },
-
     // if end Song
     endSong() {
         this.audio.onended = () => {
@@ -410,7 +404,6 @@ const musicPlayer = {
             this.LoveBtn.classList.add("btn-active");
         };
     },
-
     // click love song
     handleClickLove() {
         this.LoveBtn.addEventListener("click", () => {
