@@ -506,8 +506,18 @@ const musicPlayer = {
                 break;
             case "KeyL":
                 e.preventDefault();
-                this.handleLoop();
+                this.isloop = !this.isloop;
+
+                if (this.isloop) {
+                    this.loop.classList.add("active");
+                    this.audio.loop = this.isloop;
+                } else {
+                    this.audio.loop = this.isloop;
+                    this.loop.classList.remove("active");
+                }
                 break;
+            case "KeyR":
+                this.handleRandom();
         }
     },
     // support keyboard
