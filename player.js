@@ -98,9 +98,9 @@ const musicPlayer = {
     ],
     // hàm khởi tạo
     initialize() {
+        this.handelGetState();
         this.handleBtnAll();
         this.handleBtnLove();
-        this.handelGetState();
         this.handleURL();
         this.renderPlaylist();
         this.loadCurrenSong();
@@ -371,6 +371,7 @@ const musicPlayer = {
         this.activeSong();
         this.audio.src = currentSong.filePath;
         this.handleUserState();
+        this.handleParam(this.currenindex);
         this.handleScroll();
         if (this.isplay) {
             this.audio.oncanplay = () => {
@@ -416,11 +417,7 @@ const musicPlayer = {
     // handle param
     handleParam(index) {
         this.songId = this.list.id;
-        if (index) {
-            this.params.set(this.songId, this.songList[index].title);
-        } else {
-            this.params.delete(this.songId, this.songList[index].title);
-        }
+        this.params.set(this.songId, this.songList[index].title);
         const Url = this.params.size ? `?${this.params}` : "";
         const saveUrl = `${location.pathname}${Url}${location.hash}`;
         history.replaceState(null, null, saveUrl);
@@ -507,7 +504,6 @@ const musicPlayer = {
             case "KeyL":
                 e.preventDefault();
                 this.isloop = !this.isloop;
-
                 if (this.isloop) {
                     this.loop.classList.add("active");
                     this.audio.loop = this.isloop;
@@ -533,6 +529,7 @@ const musicPlayer = {
                 index: this.currenindex,
                 time: this.audio.currentTime,
                 volume: this.audio.volume,
+                loop: this.isloop,
             })
         );
     },
@@ -545,6 +542,14 @@ const musicPlayer = {
             const volume = saved.volume ?? 0.5;
             this.audio.volume = volume;
             this.volume.value = volume;
+            this.isloop = saved.loop;
+            if (this.isloop) {
+                this.loop.classList.add("active");
+                this.audio.loop = this.isloop;
+            } else {
+                this.audio.loop = this.isloop;
+                this.loop.classList.remove("active");
+            }
         }
     },
     // Render danh sách bài hát ra HTML
